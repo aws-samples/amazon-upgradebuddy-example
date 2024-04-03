@@ -1,0 +1,94 @@
+- messageID: B3C44A3F-0CC9-44A8-8BBB-4F3660E8FCB4
+  messageVersion: 3
+  osRequirements: ">=13.0"
+  dialogProperties:
+    big: 1
+    blurscreen: 0
+    button1text: Acknowledge
+    height: 50%
+    icon: assets://macOS_Ventura.png
+    iconsize: 160
+    infobutton: 1
+    infobuttonaction: https://Your Wiki Source/macOS/13.0/#HKnownIssues
+    infobuttontext: macOS Ventura Wiki
+    message: |
+      ### Client Engineering has identified an issue with macOS Ventura that requires your attention.
+
+      #### If you do not use SSH/GIT you can ignore this message and click _Acknowledge_.
+
+      Due to changes to the openssh client in macOS Ventura, you will need to regenerate your ssh keys:
+      1. Backup your current keys:
+          * `mv ~/.ssh/id_rsa ~/.ssh/id_rsa_bak;`
+          * `mv ~/.ssh/id_rsa.pub ~/.ssh/id_rsa.pub_bak`
+      2. Generate a new key:
+          * `ssh-keygen -t ecdsa`
+          * Run `mwinit -k ~/.ssh/id_ecdsa.pub` to sign your new key
+      3. Test ssh-ing into your hosts
+      4. If all works as expected, you can run `rm -f ~/.ssh/id_rsa*`
+
+      #### For more info, including other known issues, please visit the [macOS Ventura wiki page](https://Your Wiki Source/macOS/13.0/#HKnownIssues)!
+
+      Thanks!
+      ## ❤️ Client Engineering Mac Team 
+
+      _Note: This dialog is not aware if you have migrated or not. If you have already migrated to new keys, simply choose Ok and ignore this!_
+    messagealignment: left
+    messagefont: font=Amazon Ember
+    moveable: 1
+    title: Welcome to macOS Ventura!
+    titlefont: color=#FF9901,font=Amazon Ember
+- messageID: AEE2AE73-E36B-439A-8859-E2F90928424A
+  messageVersion: 6
+  osRequirements: "~=15.0"
+  alwaysRequired: true
+  dialogProperties:
+    big: 1
+    blurscreen: 1
+    button1text: I understand the risks!
+    height: 60%
+    icon: assets://macOS_Beta.png
+    iconsize: 160
+    infobutton: 1
+    infobuttonaction: https://Your Wiki Source/macOS/UserDocs/macOSBetaTesterProgram
+    infobuttontext: macOS Beta Tester Wiki
+    image: assets://<<MSG>>/future.gif
+    message: |
+      WAT! You're in the future m8!
+
+      macOS Sonoma is not available outside of Mac Beta Testers approved by Client Engineering. If you are not part of this group, you are in an *unsupported* state!!
+
+      If you run into any issues, you will need to wipe and re-provision.
+    messagealignment: left
+    messagefont: font=Amazon Ember
+    moveable: 1
+    title: Welcome to macOS Beta!
+    titlefont: color=#FF9901,font=Amazon Ember
+- messageID: F270F921-8C83-44FD-97B6-29225C258DA4
+  messageVersion: 3
+  osRequirements: "~=14.0"
+  dialogProperties:
+    big: 1
+    blurscreen: 0
+    button1text: Acknowledge
+    height: 30%
+    icon: assets://macOS_Sonoma.png
+    infobuttonaction: https://Your Wiki Source/macOS/14.0/
+    infobuttontext: macOS Sonomoa Wiki
+    message: |
+      ### Client Engineering has identified changes to macOS worth noting
+      #### Click to Show Desktop
+      The default behavior has been changed to show the desktop and clear your windows if you click on the desktop. This can be changed under System Settings > Desktop & Dock > Desktop & Stage Manager
+
+      #### Screen Sharing Menu Bar Icon
+      Sonoma includes a new screen sharing API that has a new Menu bar widget, it shows applications using screen sharing and cameras. If you use DisplayLink Manager you will see it listed as capturing your screen, this is expected behavior due to how DisplayLink works. Bartender 4/5 also has a feature that will trigger this to show periodically. This menu bar also includes controls for the new "Reactions" when your camera is activated.
+
+      #### Aerial Wallpapers
+      These are quite large 300-500 MB each and they are downloaded on-demand. Because they come from an .apple.com domain they may be throttled in Amazon buildings to prevent saturating the network causing long download times. It is recommended to set them up when off the corp network.
+
+    messagealignment: left
+    messagefont: font=Amazon Ember
+    moveable: 1
+    ontop: 1
+    quitoninfo: 0
+    title: Welcome to macOS Sonoma!
+    titlefont: color=#FF9901,font=Amazon Ember

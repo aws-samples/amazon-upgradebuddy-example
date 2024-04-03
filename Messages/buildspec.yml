@@ -1,0 +1,11 @@
+version: 0.2
+
+phases:
+  build:
+    commands:
+      - ls -al **
+      - echo "I do nothing!"
+artifacts:
+  files:
+    - "**/*"
+  base-directory: "source_deploy"
