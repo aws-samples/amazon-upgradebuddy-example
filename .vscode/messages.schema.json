@@ -1,0 +1,250 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "array",
+    "title": "Upgrade Buddy Schema",
+    "items": {
+        "type": "object",
+        "default": {},
+        "title": "UpgradeBuddy Messages",
+        "required": [
+            "dialogProperties",
+            "messageID",
+            "messageVersion",
+            "osRequirements"
+        ],
+        "properties": {
+            "messageID": {
+                "type": "string",
+                "default": "",
+                "title": "Message ID",
+                "description": "Generated UUIDv4 for a message ID",
+                "examples": [
+                    "B3C44A3F-0CC9-44A8-8BBB-4F3660E8FCB4"
+                ],
+                "format": "uuid"
+            },
+            "osRequirements": {
+                "type": "string",
+                "default": "<14",
+                "title": "osRequirements",
+                "examples": [
+                    "<14",
+                    ">12.3,>=13.4"
+                ],
+                "description": "The OS a device must be on to qualify for the message (current_os_version IN requirements must return true). Follows PEP440 version specifiers + formatting via packaging.specifiers. See https://peps.python.org/pep-0440/#version-specifiers"
+            },
+            "alwaysRequired": {
+                "type": "boolean",
+                "title": "alwaysRequired",
+                "examples": [
+                    "true",
+                    "false"
+                ],
+                "description": "When combined with osRequirements, this message will ALWAYS SHOW. Tread carefully, here be dragons."
+            },
+            "messageVersion": {
+                "type": "integer",
+                "default": "14",
+                "title": "messageVersion",
+                "examples": [
+                    1,
+                    42
+                ],
+                "description": "The version of this message, just integers, no need for complex versioning. (VERSION ALWAYS GOES UP!)"
+            },
+            "dialogProperties": {
+                "type": "object",
+                "default": {},
+                "title": "Dialog Properties",
+                "description": "All the JSON options to pass to SwiftDialog",
+                "allOf": [
+                    {
+                        "not": {
+                            "required": [
+                                "centreicon"
+                            ]
+                        }
+                    },
+                    {
+                        "not": {
+                            "required": [
+                                "centericon"
+                            ]
+                        }
+                    }
+                ],
+                "properties": {
+                    "big": {
+                        "type": "integer",
+                        "default": 0,
+                        "title": "big",
+                        "examples": [
+                            1
+                        ]
+                    },
+                    "blurscreen": {
+                        "type": "integer",
+                        "default": 0,
+                        "title": "blurscreen",
+                        "examples": [
+                            0
+                        ]
+                    },
+                    "button1text": {
+                        "type": "string",
+                        "default": "",
+                        "title": "button1text",
+                        "examples": [
+                            "Ok"
+                        ]
+                    },
+                    "height": {
+                        "type": "string",
+                        "default": "",
+                        "title": "height",
+                        "examples": [
+                            "50%"
+                        ]
+                    },
+                    "icon": {
+                        "type": "string",
+                        "default": "",
+                        "title": "icon",
+                        "examples": [
+                            "https://is5-ssl.mzstatic.com/image/thumb/Purple112/v4/f5/ee/e5/f5eee59c-9c40-60a8-2761-a8ae4035b4fe/ProductPageIcon.png/460x0w.png"
+                        ]
+                    },
+                    "iconsize": {
+                        "type": "integer",
+                        "default": 0,
+                        "title": "iconsize",
+                        "examples": [
+                            160
+                        ]
+                    },
+                    "infobutton": {
+                        "type": "integer",
+                        "default": 0,
+                        "title": "infobutton",
+                        "examples": [
+                            1
+                        ]
+                    },
+                    "infobuttonaction": {
+                        "type": "string",
+                        "default": "",
+                        "title": "infobuttonaction",
+                        "examples": [
+                            "https://Your Wiki Source/macOS"
+                        ]
+                    },
+                    "infobuttontext": {
+                        "type": "string",
+                        "default": "",
+                        "title": "infobuttontext",
+                        "examples": [
+                            "Info Button Text"
+                        ]
+                    },
+                    "message": {
+                        "type": "string",
+                        "default": "",
+                        "title": "message",
+                        "examples": [
+                            "### One formatted markdown paragraph\n\n #### Like This"
+                        ]
+                    },
+                    "messagealignment": {
+                        "type": "string",
+                        "default": "",
+                        "title": "messagealignment",
+                        "examples": [
+                            "left"
+                        ]
+                    },
+                    "messagefont": {
+                        "type": "string",
+                        "default": "",
+                        "title": "messagefont",
+                        "examples": [
+                            "font=Amazon Ember"
+                        ]
+                    },
+                    "moveable": {
+                        "type": "integer",
+                        "default": 0,
+                        "title": "moveable",
+                        "examples": [
+                            1
+                        ]
+                    },
+                    "quitoninfo": {
+                        "type": "integer",
+                        "default": 0,
+                        "title": "quitoninfo",
+                        "examples": [
+                            1
+                        ]
+                    },
+                    "title": {
+                        "type": "string",
+                        "default": "",
+                        "title": "title",
+                        "examples": [
+                            "TITLE HERE"
+                        ]
+                    },
+                    "titlefont": {
+                        "type": "string",
+                        "default": "",
+                        "title": "titlefont",
+                        "examples": [
+                            "color=#FF9901,font=Amazon Ember"
+                        ]
+                    }
+                },
+                "examples": [
+                    {
+                        "big": 1,
+                        "blurscreen": 0,
+                        "button1text": "Ok",
+                        "centreicon": 1,
+                        "height": "50%",
+                        "icon": "https://is5-ssl.mzstatic.com/image/thumb/Purple112/v4/f5/ee/e5/f5eee59c-9c40-60a8-2761-a8ae4035b4fe/ProductPageIcon.png/460x0w.png",
+                        "iconsize": 160,
+                        "infobutton": 1,
+                        "infobuttonaction": "https://Your Wiki Source/macOS",
+                        "infobuttontext": "macOS Ventura Wiki",
+                        "message": "Some intersting blob of data here",
+                        "messagealignment": "left",
+                        "messagefont": "font=Amazon Ember",
+                        "moveable": 1,
+                        "quitoninfo": 1,
+                        "title": "Welcome to macOS Ventura!",
+                        "titlefont": "color=#FF9901,font=Amazon Ember"
+                    }
+                ]
+            },
+            "metadata": {
+                "type": "object",
+                "default": {},
+                "title": "Message Metadata",
+                "description": "Additional metadata for message (future useful)",
+                "properties": {
+                    "author": {
+                        "type": "string",
+                        "default": "macquackers@amazon.com",
+                        "title": "Author email",
+                        "format": "email"
+                    },
+                    "last_updated": {
+                        "type": "string",
+                        "default": "1970-01-01",
+                        "title": "Message Last Update Date",
+                        "format": "date"
+                    }
+                }
+            }
+        }
+    }
+}

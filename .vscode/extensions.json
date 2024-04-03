@@ -1,0 +1,6 @@
+{
+    "recommendations": [
+        "kddejong.vscode-cfn-lint",
+        "redhat.vscode-yaml"
+    ]
+}

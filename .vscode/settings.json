@@ -1,0 +1,21 @@
+{
+    "json.schemas": [
+        {
+            "fileMatch": [
+                "Messages/source_deploy/messages.*",
+                "!/*.schema.json",
+                "!/.vscode/*.json"
+            ],
+            "url": "./.vscode/messages.schema.json"
+        },
+        {
+            "fileMatch": [
+                "messages.schema.json"
+            ],
+            "url": "https://json-schema.org/draft/2020-12/schema"
+        }
+    ],
+    "yaml.schemas": {
+        "./.vscode/messages.schema.json": "Messages/source_deploy/messages.yaml",
+    }
+}

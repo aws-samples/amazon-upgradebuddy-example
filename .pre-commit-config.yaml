@@ -11,6 +11,7 @@ repos:
       - id: check-added-large-files
         args: ["--maxkb=1000"]
       - id: check-json
+        exclude: ^.vscode/settings.json
   - repo: https://github.com/psf/black
     rev: 24.3.0
     hooks:
