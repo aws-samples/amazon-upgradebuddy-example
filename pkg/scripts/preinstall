@@ -1,0 +1,7 @@
+#!/bin/zsh --no-rcs
+
+rm -f /usr/local/outset/login-privileged-every/upgrade*
+/usr/sbin/pkgutil --forget com.apple.pkg.upgradewatcher
+/usr/bin/defaults delete /Library/Preferences/com.amazon.clienteng.upgradewatcher
+
+exit 0
