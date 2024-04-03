@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+    <dict>
+        <key>PayloadContent</key>
+        <array>
+            <dict>
+                <key>PayloadEnabled</key>
+                <true/>
+                <key>PayloadIdentifier</key>
+                <string>com.amazon.clienteng.payload</string>
+                <key>PayloadType</key>
+                <string>com.amazon.clienteng.upgradebuddy</string>
+                <key>PayloadUUID</key>
+                <string>3cd217ff-8425-435b-9471-8382b3f1b64c</string>
+                <key>PayloadVersion</key>
+                <integer>1</integer>
+                <key>CacheDir</key>
+                <string>/Library/Your/Tools/cache</string>
+                <key>IgnoredUsers</key>
+                <array>
+                    <string>admin</string>
+                </array>
+                <key>DistroURL</key>
+                <string>https://yourcloudfrontendpoint.cloudfront.net</string>
+            </dict>
+        </array>
+        <key>PayloadDescription</key>
+        <string>UpgradeBuddy Configuration</string>
+        <key>PayloadDisplayName</key>
+        <string>UpgradeBuddy Testing</string>
+        <key>PayloadIdentifier</key>
+        <string>com.amazon.clienteng.profile</string>
+        <key>PayloadOrganization</key>
+        <string>Amazon, Inc.</string>
+        <key>PayloadRemovalDisallowed</key>
+        <true/>
+        <key>PayloadScope</key>
+        <string>System</string>
+        <key>PayloadType</key>
+        <string>Configuration</string>
+        <key>PayloadUUID</key>
+        <string>fd04f812-7710-4b0d-9ed6-2380c4e6dede</string>
+        <key>PayloadVersion</key>
+        <integer>1</integer>
+    </dict>
+</plist>

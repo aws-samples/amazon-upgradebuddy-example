@@ -1,0 +1,55 @@
+{
+    "title": "com.amazon.clienteng.upgradebuddy",
+    "description": "UpgradeBuddy - A tool to help notify users of changes per OS Upgrade",
+    "properties": {
+        "DistroURL": {
+            "title": "DistroURL",
+            "description": "URL that UpgradeBuddy should point to get message configs and assets",
+            "property_order": 5,
+            "anyOf": [
+                {
+                    "type": "null",
+                    "title": "Not Configured"
+                },
+                {
+                    "title": "Configured",
+                    "type": "string"
+                }
+            ]
+        },
+        "CacheDir": {
+            "title": "CacheDir",
+            "description": "Directory on device that UpgradeBuddy should download assets and configs to",
+            "property_order": 10,
+            "anyOf": [
+                {
+                    "type": "null",
+                    "title": "Not Configured"
+                },
+                {
+                    "title": "Configured",
+                    "type": "string"
+                }
+            ]
+        },
+        "IgnoredUsers": {
+            "title": "IgnoredUsers",
+            "description": "Add usernames that UpgradeBuddy should ignore when running",
+            "property_order": 15,
+            "anyOf": [
+                {
+                    "type": "null",
+                    "title": "Not Configured"
+                },
+                {
+                    "title": "Configured",
+                    "type": "array",
+                    "items": {
+                        "type": "string",
+                        "title": "Entries"
+                    }
+                }
+            ]
+        }
+    }
+}
