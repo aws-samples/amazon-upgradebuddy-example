@@ -12,10 +12,19 @@ repos:
         args: ["--maxkb=1000"]
       - id: check-json
         exclude: ^.vscode/settings.json
-  - repo: https://github.com/psf/black
-    rev: 24.3.0
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.1.4
     hooks:
-      - id: black
+      - id: ruff-format
+      - id: ruff
+        args: [--fix, --exit-non-zero-on-fix]
+        types_or: [python, pyi]
+        require_serial: true
+        exclude: |
+          (?x)^(
+            crates/ruff_linter/resources/.*|
+            crates/ruff_python_formatter/resources/.*
+          )$
   - repo: https://github.com/python-jsonschema/check-jsonschema
     rev: 0.28.1
     hooks:
