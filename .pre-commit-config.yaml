@@ -2,7 +2,7 @@
 # See https://pre-commit.com/hooks.html for more hooks
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v3.2.0
+    rev: v4.5.0
     hooks:
       - id: trailing-whitespace
       - id: end-of-file-fixer
@@ -12,6 +12,7 @@ repos:
         args: ["--maxkb=1000"]
       - id: check-json
   - repo: https://github.com/psf/black
+    rev: 24.3.0
     hooks:
       - id: black
   - repo: https://github.com/python-jsonschema/check-jsonschema
@@ -20,3 +21,9 @@ repos:
       - id: check-jsonschema
         files: ^messages.*
         args: ["--schemafile", ".vscode/messages.schema.json"]
+  - repo: https://github.com/awslabs/git-secrets
+    rev: 5357e18bc27b42a827b6780564ea873a72ca1f01
+    hooks:
+      - id: git-secrets
+        entry: git-secrets
+        args: ["--register-aws", "--pre_commit_hook"]
