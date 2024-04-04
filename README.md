@@ -1,5 +1,7 @@
 ## UpgradeBuddy Sample
 
+![](upgradebuddy_scrsht.png)
+
 To run this sample, you will need:
 - Outset v4
 - A managed python (MacAdmins python should fulfill this need) with the following:
