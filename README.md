@@ -1,14 +1,14 @@
-## UpgradeBuddy Sample
+# UpgradeBuddy Sample
 
-![](upgradebuddy_scrsht.png)
+![upgradebuddy_scrsht](upgradebuddy_scrsht.png)
 
 To run this sample, you will need:
+
 - Outset v4
-- A managed python (MacAdmins python should fulfill this need) with the following:
+- A managed python (MacAdmins python-recommended fills this need) with the following:
   - requests
   - xattr
   - pyobjc
-  - dateutil
   - packaging
   - OPTIONAL: pyoslog
 - An MDM deploying a profile

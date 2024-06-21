@@ -26,7 +26,6 @@ from CoreFoundation import (
     kCFPreferencesAnyUser,
     kCFPreferencesCurrentHost,
 )
-from dateutil.parser import parse as datetime_parse
 from packaging.specifiers import SpecifierSet
 from packaging.version import InvalidVersion, Version
 from packaging.version import parse as version_parse
