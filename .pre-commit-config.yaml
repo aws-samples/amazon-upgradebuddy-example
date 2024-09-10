@@ -37,3 +37,8 @@ repos:
       - id: git-secrets
         entry: git-secrets
         args: ["--register-aws", "--pre_commit_hook"]
+  - repo: https://github.com/aws-cloudformation/cfn-lint
+    rev: v1.9.5 # The version of cfn-lint to use
+    hooks:
+      - id: cfn-lint
+        files: cloudformation.yaml
