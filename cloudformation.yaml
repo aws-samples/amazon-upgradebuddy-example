@@ -1,0 +1,348 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "Creates a deployment of 2 buckets with cloudfront distros and a codepipeline to allow staged releases. Stackname should be lowercase"
+Parameters:
+  StagedEnv:
+    Type: String
+    Description: >-
+      Create a staged release environment to allow testing of new messages (ie: two output buckets, a beta and a prod stage)
+    AllowedValues:
+      - True
+      - False
+  GithubConnectionARN:
+    Type: String
+    Description: The ARN of the connection to github
+  GithubRepoPath:
+    Type: String
+    Description: 'The path to the github repo, ie: "mycompany/myproject/"'
+  GithubRepoBranch:
+    Type: String
+    Description: The github branch to deploy
+    Default: main
+Conditions:
+  StagedEnv:
+    Fn::Equals:
+      - !Ref StagedEnv
+      - True
+
+Resources:
+  # S3 Buckets
+  ProdBucket:
+    Type: "AWS::S3::Bucket"
+    Properties:
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+
+  ProdBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref ProdBucket
+      PolicyDocument:
+        Statement:
+          - Action: "s3:GetObject"
+            Effect: Allow
+            Principal:
+              Service: cloudfront.amazonaws.com
+            Resource: !Join ["/", [!GetAtt ProdBucket.Arn, "*"]]
+            Condition:
+              StringEquals:
+                AWS:SourceArn: !Sub arn:${AWS::Partition}:cloudfront::${AWS::AccountId}:distribution/${ProdCloudFrontDistribution}
+
+  BetaBucket:
+    Type: "AWS::S3::Bucket"
+    Condition: StagedEnv
+    Properties:
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+
+  BetaBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Condition: StagedEnv
+    Properties:
+      Bucket: !Ref BetaBucket
+      PolicyDocument:
+        Statement:
+          - Action: "s3:GetObject"
+            Effect: Allow
+            Principal:
+              Service: cloudfront.amazonaws.com
+            Resource: !Join ["/", [!GetAtt BetaBucket.Arn, "*"]]
+            Condition:
+              StringEquals:
+                AWS:SourceArn: !Sub arn:${AWS::Partition}:cloudfront::${AWS::AccountId}:distribution/${BetaCloudFrontDistribution}
+
+  ArtifactBucket:
+    Type: "AWS::S3::Bucket"
+    Properties:
+      BucketName: !Sub "codepipeline-${AWS::Region}-${AWS::AccountId}-${AWS::StackName}"
+  # CloudFront OAC
+  OriginAccessControl:
+    Type: AWS::CloudFront::OriginAccessControl
+    Properties:
+      OriginAccessControlConfig:
+        Description: Access control for S3 buckets
+        Name: !Sub "OriginAccessControl-${AWS::StackName}"
+        OriginAccessControlOriginType: s3
+        SigningBehavior: "always"
+        SigningProtocol: "sigv4"
+
+  # CloudFront Distributions
+  ProdCloudFrontDistribution:
+    Type: "AWS::CloudFront::Distribution"
+    Properties:
+      DistributionConfig:
+        Origins:
+          - DomainName: !GetAtt ProdBucket.DomainName
+            Id: !GetAtt ProdBucket.DomainName
+            S3OriginConfig:
+              OriginAccessIdentity: ""
+            OriginAccessControlId: !GetAtt OriginAccessControl.Id
+        DefaultCacheBehavior:
+          AllowedMethods:
+            - "HEAD"
+            - "GET"
+          CachedMethods:
+            - "HEAD"
+            - "GET"
+          Compress: true
+          TargetOriginId: !GetAtt ProdBucket.DomainName
+          ViewerProtocolPolicy: "https-only"
+          CachePolicyId: !Ref FasterOptimizedCaching
+        Enabled: true
+        HttpVersion: "http2"
+        IPV6Enabled: true
+
+  BetaCloudFrontDistribution:
+    Type: "AWS::CloudFront::Distribution"
+    Condition: StagedEnv
+    Properties:
+      DistributionConfig:
+        Origins:
+          - DomainName: !GetAtt BetaBucket.DomainName
+            Id: !GetAtt BetaBucket.DomainName
+            S3OriginConfig:
+              OriginAccessIdentity: ""
+            OriginAccessControlId: !GetAtt OriginAccessControl.Id
+        DefaultCacheBehavior:
+          AllowedMethods:
+            - "HEAD"
+            - "GET"
+          CachedMethods:
+            - "HEAD"
+            - "GET"
+          Compress: true
+          TargetOriginId: !GetAtt BetaBucket.DomainName
+          ViewerProtocolPolicy: "https-only"
+          CachePolicyId: !Ref FasterOptimizedCaching
+        Enabled: true
+        HttpVersion: "http2"
+        IPV6Enabled: true
+
+  # CodeBuild Project
+  CodeBuildProject:
+    Type: "AWS::CodeBuild::Project"
+    Properties:
+      Description: "Removes unnecessary files from the input artifact"
+      Source:
+        Type: "CODEPIPELINE"
+      Artifacts:
+        Type: "CODEPIPELINE"
+      Environment:
+        ComputeType: "BUILD_GENERAL1_SMALL"
+        Image: "aws/codebuild/amazonlinux2-aarch64-standard:3.0"
+        Type: "ARM_CONTAINER"
+      ServiceRole: !GetAtt CodeBuildRole.Arn
+      LogsConfig:
+        CloudWatchLogs:
+          Status: "ENABLED"
+        S3Logs:
+          Status: "DISABLED"
+          EncryptionDisabled: false
+
+  # CodePipeline
+  CodePipelinePipeline:
+    Type: "AWS::CodePipeline::Pipeline"
+    Properties:
+      Name: !Sub "UpgradeBuddyMessages-${AWS::StackName}"
+      RoleArn: !GetAtt CodePipelineRole.Arn
+      ArtifactStore:
+        Type: "S3"
+        Location: !Ref ArtifactBucket
+      Stages:
+        - Name: "Source"
+          Actions:
+            - Name: Github
+              ActionTypeId:
+                Category: Source
+                Owner: AWS
+                Provider: CodeStarSourceConnection
+                Version: "1"
+              Configuration:
+                ConnectionArn: !Ref GithubConnectionARN
+                FullRepositoryId: !Sub "${GithubRepoPath}"
+                BranchName: !Ref GithubRepoBranch
+              OutputArtifacts:
+                - Name: "SourceArtifact"
+              Region: !Ref AWS::Region
+        - Name: "Build"
+          Actions:
+            - Name: "Build"
+              ActionTypeId:
+                Category: "Build"
+                Owner: "AWS"
+                Provider: "CodeBuild"
+                Version: "1"
+              Configuration:
+                ProjectName: !Ref CodeBuildProject
+              InputArtifacts:
+                - Name: "SourceArtifact"
+              OutputArtifacts:
+                - Name: "Cleaned"
+              Region: !Ref AWS::Region
+        - Fn::If:
+            - StagedEnv
+            - Name: "Beta"
+              Actions:
+                - Name: "DeployToS3"
+                  ActionTypeId:
+                    Category: "Deploy"
+                    Owner: "AWS"
+                    Provider: "S3"
+                    Version: "1"
+                  Configuration:
+                    BucketName: !Ref BetaBucket
+                    Extract: "true"
+                  InputArtifacts:
+                    - Name: "Cleaned"
+                  Region: !Ref AWS::Region
+            - !Ref AWS::NoValue
+        - Fn::If:
+            - StagedEnv
+            - Name: "ManualApproval"
+              Actions:
+                - Name: "ManualApproval"
+                  ActionTypeId:
+                    Category: "Approval"
+                    Owner: "AWS"
+                    Provider: "Manual"
+                    Version: "1"
+                  Region: !Ref AWS::Region
+            - !Ref AWS::NoValue
+        - Name: "Production"
+          Actions:
+            - Name: "DeployToS3"
+              ActionTypeId:
+                Category: "Deploy"
+                Owner: "AWS"
+                Provider: "S3"
+                Version: "1"
+              Configuration:
+                BucketName: !Ref ProdBucket
+                Extract: "true"
+              InputArtifacts:
+                - Name: "Cleaned"
+              Region: !Ref AWS::Region
+
+  FasterOptimizedCaching:
+    Type: "AWS::CloudFront::CachePolicy"
+    Properties:
+      CachePolicyConfig:
+        Comment: "Faster TTL but same as optimized"
+        DefaultTTL: 900
+        MaxTTL: 3600
+        MinTTL: 0
+        Name: "FasterOptimizedCaching"
+        ParametersInCacheKeyAndForwardedToOrigin:
+          EnableAcceptEncodingGzip: true
+          EnableAcceptEncodingBrotli: true
+          CookiesConfig:
+            CookieBehavior: "none"
+          HeadersConfig:
+            HeaderBehavior: "none"
+          QueryStringsConfig:
+            QueryStringBehavior: "none"
+
+  # IAM Roles
+  CodeBuildRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              Service: "codebuild.amazonaws.com"
+            Action: "sts:AssumeRole"
+      Policies:
+        - PolicyName: CodeBuildAccess
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource:
+                  - !Sub arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/codebuild/*
+                  - !Sub arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/codebuild/*:*
+        - PolicyName: ArtifactBucketAccess
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:GetObject
+                  - s3:PutObject
+                  - s3:DeleteObject
+                Resource:
+                  - !GetAtt ArtifactBucket.Arn
+                  - !Join ["/", [!GetAtt ArtifactBucket.Arn, "*"]]
+
+  CodePipelineRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              Service: "codepipeline.amazonaws.com"
+            Action: "sts:AssumeRole"
+      ManagedPolicyArns:
+        - "arn:aws:iam::aws:policy/AWSCodeBuildDeveloperAccess"
+      Policies:
+        - PolicyName: BucketAccess
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:GetObject
+                  - s3:PutObject
+                  - s3:DeleteObject
+                Resource:
+                  - !GetAtt ArtifactBucket.Arn
+                  - !Join ["/", [!GetAtt ArtifactBucket.Arn, "*"]]
+              - Effect: Allow
+                Action:
+                  - s3:GetObject
+                  - s3:PutObject
+                Resource:
+                  - !GetAtt ProdBucket.Arn
+                  - !Join ["/", [!GetAtt ProdBucket.Arn, "*"]]
+              - Fn::If:
+                  - StagedEnv
+                  - Effect: Allow
+                    Action:
+                      - s3:GetObject
+                      - s3:PutObject
+                    Resource:
+                      - !GetAtt BetaBucket.Arn
+                      - !Join ["/", [!GetAtt BetaBucket.Arn, "*"]]
+                  - !Ref AWS::NoValue
